@@ -1,0 +1,12 @@
+name = "NumericalMethods"
+uuid = "00bee424-862a-44f9-8ad6-d6692f92ac84"
+authors = ["Christopher Parnell <u7292105@anu.edu.au>"]
+version = "0.1.0"
+
+[deps]
+ArgCheck = "dce04be8-c92d-5529-be00-80e4d2c0e197"
+Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
+
+[compat]
+ArgCheck = "2.5.0"
+Revise = "3.8.0"
