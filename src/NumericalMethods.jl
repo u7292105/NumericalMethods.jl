@@ -2,6 +2,6 @@ module NumericalMethods
 
 # Include algorithms
 include("Solvers.jl")
-export bisection
+export bisection, newton
 
 end # module NumericalMethods
