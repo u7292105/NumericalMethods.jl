@@ -18,7 +18,7 @@ algorithm.
 - `maxiter::Int = 1000`: maximum iterations
 
 # Returns
-- `(root::Real, f(root)::Real, xerror::Real, noiter::Int, convergence::Bool)`
+- `(root::Real, f(root)::Real, noiter::Int, convergence::Bool)`
 """
 function bisection(
     f, a::Real, b::Real;
@@ -36,11 +36,11 @@ function bisection(
         n += 1
 
         if e < xtol
-            return (m, w, e, n, true)
+            return (m, w, n, true)
         elseif abs(w) < ftol
-            return (m, w, e, n, true)
+            return (m, w, n, true)
         elseif n == maxiter
-            return (m, w, e, n, false)
+            return (m, w, n, false)
         end
 
         if u * w <= 0

@@ -20,12 +20,12 @@ using NumericalMethods
     @testset "bisection kwargs" begin
         xtolval = 1e-32
         ftolval = 1e-32
-        x, _, _, _, _ = bisection(id, -1, 100; xtol=xtolval, ftol=ftolval)
+        x, _, _, _ = bisection(id, -1, 100; xtol=xtolval, ftol=ftolval)
         @test abs(x - 0) < 1e-32
         @test abs(id(x) - 0) < 1e-32
 
         maxiterval = 5
-        x, _, _, n, conv_bool = bisection(id, -1, 100; maxiter=maxiterval)
+        x, _, n, conv_bool = bisection(id, -1, 100; maxiter=maxiterval)
         @test n == maxiterval
         @test !conv_bool
     end
@@ -37,7 +37,7 @@ using NumericalMethods
                         (frac, 1, 1.5, 1.32827)
                     ]
         for (f, a, b, root) in test_args
-            x, fx, _, n, conv_bool = bisection(f, a, b)
+            x, fx, n, conv_bool = bisection(f, a, b)
             @test abs(x - root) < 1e-16 || abs(f(x) - 0) < 1e-16
             @test abs(f(x) - fx) < 1e-16
             @test n > 0
