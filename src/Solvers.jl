@@ -26,6 +26,7 @@ function bisection(
 )
     @argcheck a < b "lower bound must be smaller than upper bound"
     @argcheck xtol > 0 && ftol > 0 "tolerances must be positive"
+    @argcheck maxiter >= 1 "maximum iterations must be at least 1"
     u, v, e, n = f(a)::Real, f(b)::Real, b-a, 0
     @argcheck u * v <= 0 "sign must change on the interval"
 
@@ -76,6 +77,7 @@ function newton(
     xtol::Real = 1e-16, ftol::Real = 1e-16, maxiter::Int = 1000
 )
     @argcheck xtol > 0 && ftol > 0 "tolerances must be positive"
+    @argcheck maxiter >= 1 "maximum iterations must be at least 1"
     xold = x0
     fxold = f(x0)::Real
     dfxold = df(x0)::Real

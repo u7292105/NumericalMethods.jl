@@ -21,6 +21,7 @@ using NumericalMethods
         @test_throws ArgumentError bisection(id, 1, -1)
         @test_throws ArgumentError bisection(id, -1, 1; xtol=-1)
         @test_throws ArgumentError bisection(id, -1, 1; ftol=-1)
+        @test_throws ArgumentError bisection(id, -1, 1; maxiter=-1)
         @test_throws ArgumentError bisection(id, 1, 2)
         @test_throws TypeError bisection(badf1, -1, 1)
         @test_throws MethodError bisection(badf2, -1, 1)
@@ -63,6 +64,7 @@ end
     @testset "newton errors" begin
         @test_throws ArgumentError newton(id, did, 1; xtol = -1)
         @test_throws ArgumentError newton(id, did, 1; ftol = -1)
+        @test_throws ArgumentError newton(id, -1, 1; maxiter=-1)
         @test_throws TypeError newton(badf1, did, 1)
         @test_throws TypeError newton(id, badf1, 1)
         @test_throws MethodError newton(badf2, did, 1)
