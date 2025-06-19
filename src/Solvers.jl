@@ -6,7 +6,8 @@ using ArgCheck
         xtol::Real = 1e-16, ftol::Real = 1e-16, maxiter::Int = 1000
     )
 
-Compute a root of the function `f` on the interval `[a, b]`.
+Compute a root of the function `f` on the interval `[a, b]` with the bisection
+algorithm.
 
 # Arguments
 - `f`: Real to Real function
@@ -56,7 +57,8 @@ end
         xtol::Real = 1e-16, ftol::Real = 1e-16, maxiter = 1000
     )
 
-Compute a root of the function `f` with initial guess `x0`.
+Compute a root of the function `f` with initial guess `x0` with Newton's 
+method.
 
 # Arguments
 - `f`: Real to Real function
