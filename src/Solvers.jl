@@ -49,3 +49,49 @@ function bisection(
         end
     end
 end
+
+"""
+    function newton(
+        f, df, x0::Real;
+        xtol::Real = 1e-16, ftol::Real = 1e-16, maxiter = 1000
+    )
+
+Compute a root of the function `f` with initial guess `x0`.
+
+# Arguments
+- `f`: Real to Real function
+- `df`: Real to Real derivative of `f`
+- `x0::Real`: initial guess
+- `xtol::Real = 1e-16`: domain tolerance
+- `ftol::Real = 1e-16`: codomain tolerance
+- `maxiter::Int = 1000`: maximum iterations
+
+# Returns
+- `(root::Real, f(root)::Real, noiter::Int, convergence::Bool)`
+"""
+function newton(
+    f, df, x0::Real;
+    xtol::Real = 1e-16, ftol::Real = 1e-16, maxiter = 1000
+)
+    @argcheck xtol > 0 && ftol > 0 "tolerances must be positive"
+    xold = x0
+    fxold = f(x0)::Real
+    dfxold = df(x0)::Real
+    n = 0
+
+    while true
+        xnew = xold - (fxold / dfxold)
+        fxnew = f(xnew)::Real
+        dfxnew = df(xnew)::Real
+        n += 1
+
+        if abs(xnew - xold) < xtol
+            return (xnew, fxnew, n, true)
+        elseif abs(fxnew) < ftol
+            return (xnew, fxnew, n, true)
+        elseif n == maxiter
+            return (xnew, fxnew, n, false)
+        end
+        xold, fxold, dfxold = xnew, fxnew, dfxnew
+    end
+end
