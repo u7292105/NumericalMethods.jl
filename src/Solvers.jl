@@ -73,7 +73,7 @@ method.
 """
 function newton(
     f, df, x0::Real;
-    xtol::Real = 1e-16, ftol::Real = 1e-16, maxiter = 1000
+    xtol::Real = 1e-16, ftol::Real = 1e-16, maxiter::Int = 1000
 )
     @argcheck xtol > 0 && ftol > 0 "tolerances must be positive"
     xold = x0
