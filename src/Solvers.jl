@@ -99,3 +99,46 @@ function newton(
         xold, fxold, dfxold = xnew, fxnew, dfxnew
     end
 end
+
+function secant(
+    f, x0::Real;
+    x1::Union{Nothing,Real} = nothing, xtol::Real = 1e-16, ftol::Real = 1e-16, 
+    maxiter::Int = 1000, delta::Real = 1e-4
+)
+    @argcheck xtol > 0 && ftol > 0 "tolerances must be positive"
+    @argcheck maxiter >= 1 "maximum iterations must be at least 1"
+    if isnothing(x1)
+        x1 = estimate_x1(f, x0; delta=delta)
+    end
+    xk0, xk1 = x0, x1
+    fxk0, fxk1 = f(x0)::Real, f(x1)::Real
+    n = 0
+
+    while true
+        xk2 = xk1 - fxk1 * (xk1 - xk0) / (fxk1 - fxk0)
+        fxk2 = f(xk2)::Real
+        n += 1
+
+        if abs(xk2 - xk1) < xtol
+            return (xk2, fxk2, n, true)
+        elseif abs(fxk2 - fxk1) < ftol
+            return (xk2, fxk2, n, true)
+        elseif n == maxiter
+            return (xk2, fxk2, n, false)
+        end
+        xk0, xk1 = xk1, xk2
+        fxk0, fxk1 = fxk1, fxk2
+    end
+end
+
+function estimate_x1(f, x0::Real; delta::Real = 1e-4)
+    x1pos = x0 + delta * abs(x0)
+    x1neg = x0 - delta * abs(x0)
+    if f(x0) * f(x1pos) < 0
+        return x1pos
+    elseif f(x0) * f(x1neg) < 0
+        return x1neg
+    else
+        return x1pos
+    end
+end
