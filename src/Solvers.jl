@@ -100,15 +100,39 @@ function newton(
     end
 end
 
+"""
+    function secant(
+        f, x0::Real;
+        x1::Union{Nothing,Real} = nothing, xtol::Real = 1e-16, 
+        ftol::Real = 1e-16, maxiter::Int = 1000, delta::Real = 1e-4
+    )
+
+Compute a root of the function `f` with initial guesses `x0` and `x1` with the 
+Secant method. Second initial guess `x1` is optional.
+
+# Arguments
+- `f`: Real to Real function
+- `x0::Real`: 1st initial guess
+- `x1::Union{Nothing,Real} = nothing`: Optional 2nd initial guess
+- `xtol::Real = 1e-16`: domain tolerance
+- `ftol::Real = 1e-16`: codomain tolerance
+- `maxiter::Int = 1000`: maximum iterations
+- `delta::Real = 1e-4`: delta for estimating the 2nd initial guess
+    - `x1` is set to `estimate_x1(f, x0, delta)` if `x1` is `nothing`
+
+# Returns
+- `(root::Real, f(root)::Real, noiter::Int, convergence::Bool)`
+"""
 function secant(
     f, x0::Real;
-    x1::Union{Nothing,Real} = nothing, xtol::Real = 1e-16, ftol::Real = 1e-16, 
-    maxiter::Int = 1000, delta::Real = 1e-4
+    x1::Union{Nothing,Real} = nothing, xtol::Real = 1e-16, 
+    ftol::Real = 1e-16, maxiter::Int = 1000, delta::Real = 1e-4
 )
     @argcheck xtol > 0 && ftol > 0 "tolerances must be positive"
     @argcheck maxiter >= 1 "maximum iterations must be at least 1"
+    @argcheck delta > 0 "delta must be positive"
     if isnothing(x1)
-        x1 = estimate_x1(f, x0; delta=delta)
+        x1 = _estimate_x1(f, x0, delta)
     end
     xk0, xk1 = x0, x1
     fxk0, fxk1 = f(x0)::Real, f(x1)::Real
@@ -131,7 +155,21 @@ function secant(
     end
 end
 
-function estimate_x1(f, x0::Real; delta::Real = 1e-4)
+"""
+    function _estimate_x1(f, x0::Real, delta::Real)
+
+Estimate the 2nd initial guess for the Secant method. `x1` takes form `x0 + delta * abs(x0)` or `x0 - delta * abs(x0)` dependant on sign changes over the
+intervals. `x1` defaults to the former if the sign changes on neither interval or both intervals.
+
+# Arguments
+- `f`: Real to Real function
+- `x0::Real`: 1st initial guess
+- `delta::Real`: delta for estimating the 2nd initial guess
+
+# Returns
+- `x1::Real`
+"""
+function _estimate_x1(f, x0::Real, delta::Real)
     x1pos = x0 + delta * abs(x0)
     x1neg = x0 - delta * abs(x0)
     if f(x0) * f(x1pos) < 0
