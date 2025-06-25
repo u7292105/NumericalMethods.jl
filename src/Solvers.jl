@@ -158,8 +158,10 @@ end
 """
     function _estimate_x1(f, x0::Real, delta::Real)
 
-Estimate the 2nd initial guess for the Secant method. `x1` takes form `x0 + delta * abs(x0)` or `x0 - delta * abs(x0)` dependant on sign changes over the
-intervals. `x1` defaults to the former if the sign changes on neither interval or both intervals.
+Estimate the 2nd initial guess for the Secant method. `x1` takes form 
+`x0 + delta * abs(x0)` or `x0 - delta * abs(x0)` dependant on sign changes 
+over the intervals. `x1` defaults to the former if the sign changes on neither 
+interval or both intervals.
 
 # Arguments
 - `f`: Real to Real function
