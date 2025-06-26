@@ -107,3 +107,58 @@ end
         end
     end
 end
+
+@testset "secant" begin
+    default_xtol = 1e-16
+    default_ftol = 1e-16
+    default_maxiter = 1000
+    default_delta = 1e-4
+
+    @testset "secant errors" begin
+        @test_throws ArgumentError secant(id, 1; xtol=-1)
+        @test_throws ArgumentError secant(id, 1; ftol=-1)
+        @test_throws ArgumentError secant(id, 1; maxiter=-1)
+        @test_throws ArgumentError secant(id, 1; delta=-1)
+        @test_throws MethodError secant(badf1, 1)
+        @test_throws MethodError secant(badf2, 1)
+    end
+
+    @testset "secant kwargs" begin
+        xtolval = 1e-32
+        ftolval = 1e-32
+        x, _, _, _ = secant(quad, 1; xtol=xtolval, ftol=ftolval)
+        @test abs(x - 2) < xtolval
+        @test abs(quad(x) - 0) < ftolval
+
+        maxiterval = 5
+        x, _, n, conv_bool = secant(quad, 1; maxiter=maxiterval)
+        @test n == maxiterval
+        @test !conv_bool
+
+        x1, fx1, _, conv_bool1 = secant(quad, 1)
+        x2, fx2, _, conv_bool2 = secant(quad, 1; x1=1.5)
+        @test abs(x1 - x2) < 2*default_xtol || abs(fx1 - fx2) < 2*default_ftol
+        @test conv_bool1 && conv_bool2
+    end
+
+    @testset "secant normal" begin
+        test_args = [   (id, 1, 0),
+                        (id, 100, 0),
+                        (id, -1, 0),
+                        (id, -100, 0),
+                        (quad, 0.5, 0),
+                        (quad, 1.5, 2),
+                        (quad, 100, 2),
+                        (quad, -100, 0),
+                        (frac, 1, 1.32827),
+                        (frac, 1.5, 1.32827)
+        ]
+        for (f, x0, root) in test_args
+            x, fx, n, conv_bool = secant(f, x0)
+            @test abs(x - root) < default_xtol || abs(f(x) - fx) < default_ftol
+            @test abs(f(x) - fx) < 1e-16
+            @test n > 0
+            @test conv_bool
+        end
+    end
+end
