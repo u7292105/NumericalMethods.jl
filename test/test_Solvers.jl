@@ -74,9 +74,9 @@ end
     @testset "newton kwargs" begin
         xtolval = 1e-32
         ftolval = 1e-32
-        x, _, _, _ = newton(id, did, 1; xtol=xtolval, ftol=ftolval)
-        @test abs(x - 0) < xtolval
-        @test abs(id(x) - 0) < ftolval
+        x, _, _, _ = newton(quad, dquad, 1000; xtol=xtolval, ftol=ftolval)
+        @test abs(x - 2) < xtolval
+        @test abs(quad(x) - 0) < ftolval
 
         maxiterval = 5
         x, _, n, conv_bool = newton(quad, dquad, 1000; maxiter=maxiterval)
