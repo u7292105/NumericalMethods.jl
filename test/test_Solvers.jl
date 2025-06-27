@@ -41,11 +41,12 @@ using NumericalMethods
     end
 
     @testset "bisection normal" begin
-        test_args = [   (id, -1, 10, 0), 
-                        (id, -10, 1, 0), 
-                        (quad, -10, 1, 0), 
-                        (frac, 1, 1.5, 1.32827)
-                    ]
+        test_args = [   
+            (id, -1, 10, 0), 
+            (id, -10, 1, 0), 
+            (quad, -10, 1, 0), 
+            (frac, 1, 1.5, 1.32827)
+        ]
         for (f, a, b, root) in test_args
             x, fx, n, conv_bool = bisection(f, a, b)
             @test abs(x - root) < default_xtol || abs(f(x) - 0) < default_ftol
@@ -85,19 +86,20 @@ end
     end
 
     @testset "newton normal" begin
-        test_args = [   (id, did, 1, 0),
-                        (id, did, 100, 0),
-                        (id, did, -1, 0),
-                        (id, did, -100, 0),
-                        (quad, dquad, 0.5, 0),
-                        (quad, dquad, 1.5, 2),
-                        (quad, dquad, 100, 2),
-                        (quad, dquad, -100, 0),
-                        (frac, dfrac, 0, 1.32827),
-                        (frac, dfrac, 2, 1.32827),
-                        (frac, dfrac, -5, 1.32827),
-                        (frac, dfrac, 5, 1.32827)
-                    ]
+        test_args = [   
+            (id, did, 1, 0),
+            (id, did, 100, 0),
+            (id, did, -1, 0),
+            (id, did, -100, 0),
+            (quad, dquad, 0.5, 0),
+            (quad, dquad, 1.5, 2),
+            (quad, dquad, 100, 2),
+            (quad, dquad, -100, 0),
+            (frac, dfrac, 0, 1.32827),
+            (frac, dfrac, 2, 1.32827),
+            (frac, dfrac, -5, 1.32827),
+            (frac, dfrac, 5, 1.32827)
+        ]
         for (f, df, x0, root) in test_args
             x, fx, n, conv_bool = newton(f, df, x0)
             @test abs(x - root) < default_xtol || abs(f(x) - fx) < default_ftol
@@ -142,16 +144,17 @@ end
     end
 
     @testset "secant normal" begin
-        test_args = [   (id, 1, 0),
-                        (id, 100, 0),
-                        (id, -1, 0),
-                        (id, -100, 0),
-                        (quad, 0.5, 0),
-                        (quad, 1.5, 2),
-                        (quad, 100, 2),
-                        (quad, -100, 0),
-                        (frac, 1, 1.32827),
-                        (frac, 1.5, 1.32827)
+        test_args = [   
+            (id, 1, 0),
+            (id, 100, 0),
+            (id, -1, 0),
+            (id, -100, 0),
+            (quad, 0.5, 0),
+            (quad, 1.5, 2),
+            (quad, 100, 2),
+            (quad, -100, 0),
+            (frac, 1, 1.32827),
+            (frac, 1.5, 1.32827)
         ]
         for (f, x0, root) in test_args
             x, fx, n, conv_bool = secant(f, x0)
