@@ -1,3 +1,5 @@
+using ArgCheck
+
 struct BasisPolynomial{F}
     func::F
     func_str::String
@@ -20,15 +22,21 @@ struct NewtonPolynomial <: InterpolationPolynomial
 end
 
 function (ip::InterpolationPolynomial)(x::Real)
-    return sum(ip.coeffs[i] * ip.base_polys[i](x) for i in eachindex(p.coeffs))
+    return sum(ip.coeffs[i] * ip.base_polys[i](x) for i in eachindex(ip.coeffs))
 end
 
 function inter_poly_str(ip::InterpolationPolynomial)
     return ""
 end
 
-function create_lagrange()
-    return
+function create_lagrange(xs::Vector{<:Real}, ys::Vector{<:Real})
+    @argcheck length(xs) == length(ys) "xs and ys must have equal lengths"
+    @argcheck unique(xs) == xs "elements in xs must not appear more than once"
+
+    coeffs = ys
+    cardinal_funcs = _cardinal_functions(xs)
+
+    return LagrangePolynomial(coeffs, cardinal_funcs)
 end
 
 function _cardinal_functions(xs::Vector{<:Real})
@@ -43,9 +51,9 @@ function _cardinal_functions(xs::Vector{<:Real})
 
         # build string of form [(x-xs[.])...(x-xs[.])]/(evaluated denom)
         segments = String[]
+        absdenom = abs(denom)
         if (sign(denom) == -1)
             push!(segments, "-")
-            denom = -denom
         end
         push!(segments, "[")
         for i in 1:len
@@ -65,8 +73,8 @@ function _cardinal_functions(xs::Vector{<:Real})
             end
         end
         push!(segments, "]")
-        if (denom > 1)
-            push!(segments, "/$denom")
+        if (denom != 1)
+            push!(segments, "/$absdenom")
         end
         string = join(segments)
 
