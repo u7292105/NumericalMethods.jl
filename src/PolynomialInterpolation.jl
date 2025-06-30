@@ -32,6 +32,7 @@ end
 function create_lagrange(xs::Vector{<:Real}, ys::Vector{<:Real})
     @argcheck length(xs) == length(ys) "xs and ys must have equal lengths"
     @argcheck unique(xs) == xs "elements in xs must not appear more than once"
+    @argcheck length(xs) >= 1 "there must be at least one point"
 
     coeffs = ys
     cardinal_funcs = _cardinal_functions(xs)
