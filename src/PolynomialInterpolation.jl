@@ -86,8 +86,64 @@ function _cardinal_functions(xs::Vector{<:Real})
     return funcs
 end
 
-function create_newton()
-    return
+function create_newton(xs::Vector{<:Real}, ys::Vector{<:Real})
+    @argcheck length(xs) == length(ys) "xs and ys must have equal lengths"
+    @argcheck unique(xs) == xs "elements in xs must not appear more than once"
+    @argcheck length(xs) >= 1 "there must be at least one point"
+    
+    len = length(xs)
+    basis_funcs = _basis_functions(xs)
+    coeffs = []
+    push!(coeffs, ys[1])
+
+    # compute coefficients
+    for n = 2:len
+        numer = ys[n] - sum(coeffs[n-i]*(basis_funcs[n-i](xs[n])) for i in 1:(n-1))
+        denom = basis_funcs[n](xs[n])
+        coeff = numer / denom
+        push!(coeffs, coeff)
+    end
+
+    return NewtonPolynomial(coeffs, basis_funcs)
+end
+
+function _basis_functions(xs::Vector{<:Real})
+    len = length(xs)
+    funcs = BasisPolynomial[]
+    
+    # instantiate the first BasisPolynomial f1(x) = 1
+    func = (_ -> 1)
+    string = "1"
+    basis_poly = BasisPolynomial(func, string)
+    push!(funcs, basis_poly)
+
+    for n = 2:len
+        # recursively define the next function fn(x) = fn-1(x) * (x - xs[n-1])
+        func = (x -> funcs[n-1](x) * (x - xs[n-1]))
+
+        # build string of form "fn-1(x)(x - xs[n-1])"
+        segments = String[]
+        if (funcs[n-1].func_str != "1")
+            push!(segments, funcs[n-1].func_str)
+        end
+        if (sign(xs[n-1]) == 1)
+            segment = "(x - $(xs[n-1]))"
+            push!(segments, segment)
+        elseif (sign(xs[n-1]) == -1)
+            segment = "(x + $(-xs[n-1]))"
+            push!(segments, segment)
+        else
+            segment = "x"
+            push!(segments, segment)
+        end
+        string = join(segments)
+
+        # instantiate a BasisPolynomial with corresponding function and string
+        basis_poly = BasisPolynomial(func, string)
+        push!(funcs, basis_poly)
+    end
+
+    return funcs
 end
 
 function lagrange_to_standard()
