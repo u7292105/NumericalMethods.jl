@@ -41,6 +41,7 @@ function inter_poly_str(ip::InterpolationPolynomial)
         end
         push!(segments, segment)
     end
+    
     return join(segments, " + ")
 end
 
