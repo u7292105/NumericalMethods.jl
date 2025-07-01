@@ -26,7 +26,22 @@ function (ip::InterpolationPolynomial)(x::Real)
 end
 
 function inter_poly_str(ip::InterpolationPolynomial)
-    return ""
+    @argcheck length(ip.coeffs) == length(ip.base_polys) "interpolation polynomial has mismatched lengths"
+
+    segments = String[]
+    for i in 1:length(ip.coeffs)
+        coeff = ip.coeffs[i]
+        segment = ""
+        if (coeff == 0)
+            continue
+        elseif (coeff == 1)
+            segment = "[$(ip.base_polys[i].func_str)]"
+        else
+            segment = "$(ip.coeffs[i])[$(ip.base_polys[i].func_str)]"
+        end
+        push!(segments, segment)
+    end
+    return join(segments, " + ")
 end
 
 function create_lagrange(xs::Vector{<:Real}, ys::Vector{<:Real})
@@ -56,7 +71,6 @@ function _cardinal_functions(xs::Vector{<:Real})
         if (sign(denom) == -1)
             push!(segments, "-")
         end
-        push!(segments, "[")
         for i in 1:len
             if (i == n)
                 continue
@@ -73,8 +87,7 @@ function _cardinal_functions(xs::Vector{<:Real})
                 push!(segments, segment)
             end
         end
-        push!(segments, "]")
-        if (denom != 1)
+        if (absdenom != 1)
             push!(segments, "/$absdenom")
         end
         string = join(segments)
