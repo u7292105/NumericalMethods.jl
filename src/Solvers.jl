@@ -1,7 +1,7 @@
 using ArgCheck
 
 """
-    function bisection(
+    bisection(
         f, a::Real, b::Real;
         xtol::Real = 1e-16, ftol::Real = 1e-16, maxiter::Int = 1000
     )
@@ -53,7 +53,7 @@ function bisection(
 end
 
 """
-    function newton(
+    newton(
         f, df, x0::Real;
         xtol::Real = 1e-16, ftol::Real = 1e-16, maxiter = 1000
     )
@@ -101,7 +101,7 @@ function newton(
 end
 
 """
-    function secant(
+    secant(
         f, x0::Real;
         x1::Union{Nothing,Real} = nothing, xtol::Real = 1e-16, 
         ftol::Real = 1e-16, maxiter::Int = 1000, delta::Real = 1e-4
@@ -156,7 +156,7 @@ function secant(
 end
 
 """
-    function _estimate_x1(f, x0::Real, delta::Real)
+    _estimate_x1(f, x0::Real, delta::Real)
 
 Estimate the 2nd initial guess for the Secant method. `x1` takes form 
 `x0 + delta * abs(x0)` or `x0 - delta * abs(x0)` dependant on sign changes 
