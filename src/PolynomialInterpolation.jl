@@ -1,30 +1,117 @@
 using ArgCheck
 
+"""
+    BasisPolynomial{F}(func, func_str)
+
+A container that holds a polynomial function of type `F` and a corresponding 
+string.
+
+# Fields
+- `func::F`: Real to Real function
+- `func_str::String`: corresponding string representation
+
+# Callable Interface
+Returns the evaluation of `func` at a point.
+
+    bp(x::Real)
+
+# Arguments
+- `x::Real`: point to evaluate `bp` at
+
+# Returns
+- `func(x)::Real`
+"""
 struct BasisPolynomial{F}
     func::F
     func_str::String
 end
 (bp::BasisPolynomial)(x::Real) = bp.func(x)
 
-abstract type InterpolationPolynomial end
+"""
+    InterpolationPolynomial
 
+Abstract supertype for all interpolation polynomials.
+
+# Required Fields
+All concrete subtypes must contain:
+- `coeffs::Vector{Real}`: array of coefficients of basis polynomials
+- `base_polys::Vector{BasisPolynomial}`: array of basis polynomials
+
+# Callable Interface
+Returns the evaluation of the `InterpolationPolynomial` at a point:
+
+    ip(x::Real)
+
+# Arguments
+- `x::Real`: point to evaluate `ip` at
+
+# Returns
+- `ip(x)::Real`
+"""
+abstract type InterpolationPolynomial end
+function (ip::InterpolationPolynomial)(x::Real)
+    return sum(ip.coeffs[i] * ip.base_polys[i](x) for i in eachindex(ip.coeffs))
+end
+
+"""
+    StandardPolynomial <: InterpolationPolynomial
+
+Concrete subtype of an `InterpolationPolynomial` with standard basis 
+polynomials: `1`, `x`, `x^2`, `...`.
+
+# Fields
+- `coeffs::Vector{Real}`: array of coefficients of basis polynomials
+- `base_polys::Vector{BasisPolynomial}`: array of standard basis polynomials
+"""
 struct StandardPolynomial <: InterpolationPolynomial
     coeffs::Vector{Real}
     base_polys::Vector{BasisPolynomial}
 end
+
+"""
+    LagrangePolynomial <: InterpolationPolynomial
+
+Concrete subtype of an `InterpolationPolynomial` with cardinal basis 
+polynomials: for a given set of domain points, each `BasisPolynomial` evaluates
+to `1` at exactly one domain point, and `0` for all other domain points.
+
+# Fields
+- `coeffs::Vector{Real}`: array of coefficients of basis polynomials
+- `base_polys::Vector{BasisPolynomial}`: array of cardinal basis polynomials
+"""
 struct LagrangePolynomial <: InterpolationPolynomial
     coeffs::Vector{Real}
     base_polys::Vector{BasisPolynomial}
 end
+
+"""
+    NewtonPolynomial <: InterpolationPolynomial
+
+Concrete subtype of an `InterpolationPolynomial` with recursively defined 
+Newton polynomials: for a given set of domain points, `BasisPolynomial`'s
+evaluate to `0` on a growing subset of domain points.
+
+# Fields
+- `coeffs::Vector{Real}`: array of coefficients of basis polynomials
+- `base_polys::Vector{BasisPolynomial}`: array of newton basis polynomials
+"""
 struct NewtonPolynomial <: InterpolationPolynomial
     coeffs::Vector{Real}
     base_polys::Vector{BasisPolynomial}
 end
 
-function (ip::InterpolationPolynomial)(x::Real)
-    return sum(ip.coeffs[i] * ip.base_polys[i](x) for i in eachindex(ip.coeffs))
-end
+"""
+    inter_poly_str(ip::InterpolationPolynomial)
 
+Build a string that represents the `InterpolationPolynomial` in terms of its 
+constituent basis polynomials and coefficients.
+
+# Arguments
+- `ip::InterpolationPolynomial`: interpolation polynomial to build string of
+
+# Returns
+- `string::String`
+"""
 function inter_poly_str(ip::InterpolationPolynomial)
     @argcheck length(ip.coeffs) == length(ip.base_polys) "interpolation polynomial has mismatched lengths"
 
@@ -45,6 +132,19 @@ function inter_poly_str(ip::InterpolationPolynomial)
     return join(segments, " + ")
 end
 
+"""
+    create_lagrange(xs::Vector{<:Real}, ys::Vector{<:Real})
+
+Construct a `LagrangePolynomial` that interpolates the set of points outlined by
+corresponding domain and codomain points.
+
+# Arguments
+- `xs::Vector{<:Real}`: an array of domain points
+- `ys::Vector{<:Real}`: an array of codomain points
+
+# Returns
+- `lp::LagrangePolynomial`
+"""
 function create_lagrange(xs::Vector{<:Real}, ys::Vector{<:Real})
     @argcheck length(xs) == length(ys) "xs and ys must have equal lengths"
     @argcheck unique(xs) == xs "elements in xs must not appear more than once"
@@ -56,6 +156,19 @@ function create_lagrange(xs::Vector{<:Real}, ys::Vector{<:Real})
     return LagrangePolynomial(coeffs, cardinal_funcs)
 end
 
+"""
+    _cardinal_functions(xs::Vector{<:Real})
+
+Construct an array of cardinal functions for an input array of domain points. 
+The `n`'th cardinal function evaluates to `1` at the `n`'th point in `xs`, while
+evaluating to `0` at every other point.
+
+# Arguments
+- `xs::Vector{<:Real}`: an array of domain points
+
+# Returns
+- `bps::BasisPolynomial[]`
+"""
 function _cardinal_functions(xs::Vector{<:Real})
     len = length(xs)
     funcs = BasisPolynomial[]
@@ -101,6 +214,19 @@ function _cardinal_functions(xs::Vector{<:Real})
     return funcs
 end
 
+"""
+    create_newton(xs::Vector{<:Real}, ys::Vector{<:Real})
+
+Construct a 'NewtonPolynomial' that interpolates the set of points outlined by
+corresponding domain and codomain points.
+
+# Arguments
+- `xs::Vector{<:Real}`: an array of domain points
+- `ys::Vector{<:Real}`: an array of codomain points
+
+# Returns
+- `np::NewtonPolynomial`
+"""
 function create_newton(xs::Vector{<:Real}, ys::Vector{<:Real})
     @argcheck length(xs) == length(ys) "xs and ys must have equal lengths"
     @argcheck unique(xs) == xs "elements in xs must not appear more than once"
@@ -122,6 +248,19 @@ function create_newton(xs::Vector{<:Real}, ys::Vector{<:Real})
     return NewtonPolynomial(coeffs, basis_funcs)
 end
 
+"""
+    _basis_functions(xs::Vector{<:Real})
+
+Construct an array of Newton basis functions for an input array of domain 
+points. The `n`'th basis function evaluates to 0 for points `1`, `2`, `...`,
+`n-1` of the input array.
+
+# Arguments
+- `xs::Vecotr{<:Real}`: an array of domain points
+
+# Returns
+- `bps::BasisPolynomial[]`
+"""
 function _basis_functions(xs::Vector{<:Real})
     len = length(xs)
     funcs = BasisPolynomial[]
